@@ -3,9 +3,9 @@
 
 #target photoshop
 
-#include "../common/Utils.jsx"
+#include "../../common/Utils.jsx"
 
-#include "PhotoshopCommons.jsx"
+#include "../PhotoshopCommons.jsx"
 
 
 

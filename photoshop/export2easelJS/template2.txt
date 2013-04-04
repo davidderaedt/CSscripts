@@ -1,0 +1,16 @@
+// @{spriteName}
+var @{spriteName} = function() {this.initialize();}
+@{spriteName}._SpriteSheet = new createjs.SpriteSheet(
+	{
+	images: [spritesheetPath], 
+	frames:@{frameData},
+	animations: @{animationData}
+	});
+
+var @{spriteName}_p = @{spriteName}.prototype = new createjs.BitmapAnimation();
+@{spriteName}_p.BitmapAnimation_initialize = @{spriteName}_p.initialize;
+@{spriteName}_p.initialize = function() {
+	this.BitmapAnimation_initialize(@{spriteName}._SpriteSheet);
+	this.paused = false;
+}
+scope.@{spriteName} = @{spriteName};

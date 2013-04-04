@@ -1,4 +1,4 @@
-﻿// Test script for SpriteExporter
+﻿// Test script for SpriteExporter and EaselJSExporter
 
 // enable double clicking from the Macintosh Finder or the Windows Explorer
 #target photoshop
@@ -31,7 +31,5 @@ else {
 		SpriteExporter.doExport(app.activeDocument, EaselJSExporter, folderName, fileDest);
 	}
 }
-
-
 
 

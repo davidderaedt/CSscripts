@@ -1,11 +1,11 @@
 Illustrator to Edge Animate exporter
 ---------
 
->WARNING: This is an early preview for an upcoming (unofficial) panel / extension. This script will modify the original .an file so please backup and use at you own risk!
+>WARNING: This script is meant to be used by an upcoming (unofficial) panel / extension. If you are not a developer, you probably want to use the extension directly:
 
-[DOWNLOAD THE SCRIPT](https://raw.github.com/davidderaedt/CSscripts/master/illustrator/export2EdgeAnimate/export2Animate.jsxbin)
+[DOWNLOAD THE PANEL HERE](https://dl.dropbox.com/u/112869/IllustratorEdgeAnimateExporter.zxp)
 
-This script exports the active Illustrator document to an Edge Animate project. Each layer is converted to a SVG or PNG file (the export type option is at the end of the script) placed in the project's "images" folder. The project's `xxx_edge.js` dom array will also be modified to properly place each image onto the project's stage.
+The underlying script exports the active Illustrator document to an Edge Animate project. Each layer is converted to a SVG or PNG file placed in the project's "images" folder. The project's `xxx_edge.js` dom array will also be modified to properly place each image onto the project's stage.
 
 Note that only top level layers are exported. Each layer's content is flattened to a bitmap (PNG24) or vector (SVG) data, whatever its content. If your file doesn't use layers, consider using my `distributeSelectionToLayers.jsx` script which does exaclty that.
 

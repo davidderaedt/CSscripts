@@ -1,1 +1,1 @@
-﻿// This file is intended to test the EdgeAnimate exporter // outside the panel context#include "export2Animate.jsx"var useSVG = false;doExport(useSVG);
+﻿// This file is intended to test the EdgeAnimate exporter // outside the panel context#include "export2Animate.jsx"var useSVG = true;doExport(useSVG);

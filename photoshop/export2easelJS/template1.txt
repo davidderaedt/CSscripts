@@ -1,9 +1,0 @@
-//EaselJS Spritesheet
-if (!window.@{libName}) { window.@{libName} = {}; }
-(function(scope) {
-var spritesheetPath='@{folder}/@{imageName}.png';
-
-@{sprites}
-
-// Endofspritesdef
-}(window.@{libName}));

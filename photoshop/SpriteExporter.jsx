@@ -63,8 +63,10 @@ var SpriteExporter = (function () {
 		// Process each sprite	
 		for (var i = 0 ; i < destDoc.layerSets.length ; i++) {
 			var spriteSet = destDoc.layerSets[i];
-			$.writeln("set: " + i + "> " + spriteSet.allLocked);
-			if(spriteSet.allLocked) spriteSet.allLocked=false;
+			//$.writeln("set: " + i + "> " + spriteSet.allLocked);
+			if(spriteSet.allLocked) spriteSet.allLocked = false;
+			if(spriteSet.visible == false) spriteSet.visible = true;
+			
 			var destName = spriteSet.name;
 			processSprite(destDoc, spriteSet.layerSets, destName, cols, rows, w, h);		
 		}

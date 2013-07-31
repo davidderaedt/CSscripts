@@ -63,7 +63,8 @@ var DataExtractor = (function () {
 
 
     function getLayersCoords(doc) {
-        var artb = doc.artboards[0];
+        var i = doc.artboards.getActiveArtboardIndex();
+        var artb = doc.artboards[i];
         var data = {
                     name:doc.name,
                     width: Math.ceil(artb.artboardRect[2] - artb.artboardRect[0]),

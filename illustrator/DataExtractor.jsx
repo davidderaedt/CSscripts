@@ -81,6 +81,8 @@ var DataExtractor = (function () {
             //logtxt+=l.name + "---------\n" 
             var d = getItemsCoords(l.pageItems);
             d.name = l.name;
+            //var reg = new RegExp("[\\s\\.]", "g"); 
+            //d.name = l.name.replace(reg, "-");
             d.visible = l.visible;
             if(l.textFrames.length>0) {
                 var t = l.textFrames[0];

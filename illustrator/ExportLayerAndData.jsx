@@ -26,8 +26,8 @@ $.exportLayersAndData = function (exportType, ignoreHidden, namingFunc, doc, des
     var count = data.layers.length;
     for ( var i = 0 ; i < count ; i++) {
         var l = data.layers[i];
-        l.filename = l.name.replace(reg, "-");
-        if(l.name.indexOf(".")===-1) l.filename += "." + ext;
+        l.filename = namingFunc(l.name);
+        if(l.filename.indexOf(".")===-1) l.filename += "." + ext;
     }
         
     
@@ -38,7 +38,7 @@ $.exportLayersAndData = function (exportType, ignoreHidden, namingFunc, doc, des
 }
 
 
-
+/*
 var myDoc = app.activeDocument;
 
 //var prefix = normalizeName(getFileNamePart(myDoc.name)) + "-";
@@ -47,3 +47,4 @@ var myDoc = app.activeDocument;
 //}
 
 $.exportLayersAndData(ExportType.SVG, true, null, myDoc);
+*/

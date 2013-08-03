@@ -16,7 +16,18 @@ var AltLayerExporter = (function () {
 	(This value should use ExportType constants)
 	*/
 
-	function exportLayers(doc, destFolder, defaultExportType, ignoreInvisible, namingFunc) {
+	function exportLayers(doc, destFolder, ignoreInvisible, getLayerOptions) {
+						
+        if(!getLayerOptions) {
+            getLayerOptions = function (lname) {
+                return {
+                    ignore:false,
+                    exportType:"png",
+                    name: lname,
+                    useText: false
+                }
+            }
+        }
 						
 		var destPath = destFolder.path + "/" + destFolder.name + "/";
 		        		
@@ -37,16 +48,25 @@ var AltLayerExporter = (function () {
 			//ignore empty layers
 			if(l.pageItems.length==0) continue;			
 			// also ignore items which width==0 (points etc)
-			if(doc.visibleBounds[0] == doc.visibleBounds[2]) continue;			
+			if(doc.visibleBounds[0] == doc.visibleBounds[2]) continue;	
+            
+            		
+            var layerOptions = getLayerOptions(l.name);		
+            
+            if(layerOptions.ignore) continue;
             
             copyLayer(l, destDoc);
             
             destDoc.artboards[0].artboardRect = destDoc.visibleBounds;
-            			
+            
+
+//            }
+            
+            var filename = layerOptions.name + "." + layerOptions.exportType;
+            
+            /*
 			var fileName = namingFunc(l.name);
-            
-            
-            var exportType =  defaultExportType;
+                        
             var nameParts = l.name.split(".");
             var nameEnd = nameParts[nameParts.length-1];
             if(nameEnd == "png") exportType = ExportType.PNG24;
@@ -55,9 +75,10 @@ var AltLayerExporter = (function () {
             
             var useText = false;
             if(l.name.indexOf("-txt")>-1) useText = true;
-                            
-			var useVariables = doc.variables.length>0;
-			exportImage(destDoc, destPath + fileName, exportType, useText, useVariables);
+            */
+            
+            
+			exportImage(destDoc, destPath + filename, layerOptions.exportType, layerOptions.useText);
 								
             destDoc.activeLayer.pageItems.removeAll();
             
@@ -80,12 +101,12 @@ var AltLayerExporter = (function () {
 
 
 
-	function exportImage(doc, dest, exportType, useText, useVariables) {
+	function exportImage(doc, dest, exportType, useText) {
 		
-		var options;
-		
-		if(exportType == ExportType.SVG) {
-			
+        var options;
+		var eType;
+		if(exportType.toLowerCase() == "svg") {
+			eType = ExportType.SVG;
 			options = new ExportOptionsSVG();
             options.coordinatePrecision = 2; // 3 by default			
 			options.embedRasterImages = true;
@@ -94,23 +115,25 @@ var AltLayerExporter = (function () {
                 options.fontType = SVGFontType.SVGFONT;
                 options.fontSubsetting = SVGFontSubsetting.None;
             }
-            if(useVariables) {
+            if(doc.variables.length>0) {
                 options.includeVariablesAndDatasets = true;
             }
             options.cssProperties = SVGCSSPropertyLocation.STYLEELEMENTS;
             options.documentEncoding = SVGDocumentEncoding.UTF8;			
 		}
-		else if (exportType == ExportType.PNG24){
+		else if (exportType.toLowerCase() == "png") {
+			eType = ExportType.PNG24;
 			options = new ExportOptionsPNG24();
 		}
-		else if (exportType == ExportType.JPEG){
+		else if (exportType.toLowerCase() == "jpg") {
+			eType = ExportType.JPEG;
 			options = new ExportOptionsJPEG();
 			options.qualitySetting = 90;
 		}
 	
 		var fileSpec = new File(dest);
 							   
-		doc.exportFile( fileSpec, exportType, options );		
+		doc.exportFile( fileSpec, eType, options );		
 	}
 
 
@@ -121,17 +144,6 @@ var AltLayerExporter = (function () {
 }());
 
 /*
-#include "../common/Utils.jsx"
-
-var myDoc = app.activeDocument;
-
-//var prefix = normalizeName(getFileNamePart(myDoc.name)) + "-";
-
-var naming = function (lName){
-    return normalizeName(lName);
-}
-
 var destFolder = Folder.selectDialog ("Select Destination Folder");
-
-AltLayerExporter.exportLayers(myDoc, destFolder, ExportType.SVG, true, naming);
+AltLayerExporter.exportLayers(app.activeDocument, destFolder, true);
 */

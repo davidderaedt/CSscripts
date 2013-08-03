@@ -3,33 +3,34 @@
 #include ../common/Utils.jsx
 #include ../common/json2.js
 
-$.exportLayersAndData = function (exportType, ignoreHidden, namingFunc, doc, destFolder) {
+$.exportLayersAndData = function (defaultExportType, ignoreHidden, namingFunc, doc, destFolder) {
     
     if(!doc) doc = app.activeDocument;
     if(!destFolder) destFolder = Folder.selectDialog ("Select Destination Folder");
     if(!destFolder) return;
     
-    var reg = new RegExp("\\s", "g");    
-    
+    var reg = new RegExp("\\s", "g");
+        
     if(!namingFunc) namingFunc = function(lname) {return lname.replace(reg, "-");};
     
-    AltLayerExporter.exportLayers(doc, destFolder, exportType, ignoreHidden, namingFunc);
-
-    var data = DataExtractor.getLayersCoords(doc);
-
     
-    var ext = "svg"
-    if(exportType==ExportType.PNG24) ext = "png";
-    else if(exportType==ExportType.JPEG) ext = "jpg";
+    function readLayerOptions(lName) {
+        var obj = {};
+        obj.ignore = lName.substring(lName.length-1) == "!";
+        var nameParts = lName.split(".");
+        if(nameParts.length > 1) obj.exportType = nameParts[1];
+        else obj.exportType = defaultExportType;
         
-                            
-    var count = data.layers.length;
-    for ( var i = 0 ; i < count ; i++) {
-        var l = data.layers[i];
-        l.filename = namingFunc(l.name);
-        if(l.filename.indexOf(".")===-1) l.filename += "." + ext;
+        obj.name = namingFunc(nameParts[0]);
+        
+        obj.useText = (lName.indexOf("-txt")>-1)
+        return obj;
     }
-        
+    
+    
+    AltLayerExporter.exportLayers(doc, destFolder, ignoreHidden, readLayerOptions);
+
+    var data = DataExtractor.getLayersCoords(doc, readLayerOptions); 
     
     var text = JSON.stringify(data, null, '\t');
     var filepath = destFolder.absoluteURI + "/data.json";
@@ -37,14 +38,6 @@ $.exportLayersAndData = function (exportType, ignoreHidden, namingFunc, doc, des
             
 }
 
-
-/*
 var myDoc = app.activeDocument;
 
-//var prefix = normalizeName(getFileNamePart(myDoc.name)) + "-";
-//var naming = function (lName){
-//    return prefix + normalizeName(lName);
-//}
-
-$.exportLayersAndData(ExportType.SVG, true, null, myDoc);
-*/
+$.exportLayersAndData("svg", true, null, myDoc);

@@ -62,7 +62,8 @@ var DataExtractor = (function () {
     }
 
 
-    function getLayersCoords(doc, getLayerOptions) {
+    function getLayersCoords(doc, getLayerParams) {
+        
         var i = doc.artboards.getActiveArtboardIndex();
         var artb = doc.artboards[i];
         var data = {
@@ -77,17 +78,18 @@ var DataExtractor = (function () {
         for (var i = 0 ; i < count ; i++){
             
             var l = doc.layers[i];
-            var options = getLayerOptions(l.name);
+            var params = getLayerParams(l.name);
             
-            if(options.ignore) continue;
+            if(params == null) continue;
             if(l.pageItems.length==0) continue;
             
             var d = getItemsCoords(l.pageItems);
             d.layername = l.name;
-            d.name = options.name;
-            d.filename = options.name + "." + options.exportType;
+            d.name = params.name;
+            d.filename = params.name + "." + params.exportType;
             
             d.visible = l.visible;
+            
             if(l.textFrames.length>0) {
                 var t = l.textFrames[0];
                 var tr = t.textRange

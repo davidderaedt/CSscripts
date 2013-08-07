@@ -11,25 +11,21 @@ var AltLayerExporter = (function () {
 	@param {Folder} destFolder The destination folder for the image files
 	@param {String} exportType Determines if layers should be converted to SVG, JPG or PNG files
 	@param {Boolean} ignoreInvisible Determines if invisible layers should be ignored
-	@param {String} namingFunc function taking the layer name as a parameter and returning the filename
-	
-	(This value should use ExportType constants)
+	@param {Function} getLayerParams function taking the layer name as a parameter and returning export params
 	*/
 
-	function exportLayers(doc, destFolder, ignoreInvisible, getLayerOptions) {
+	function exportLayers(doc, destFolder, ignoreInvisible, getExportParams) {
 						
-        if(!getLayerOptions) {
-            getLayerOptions = function (lname) {
+        if (!getExportParams) {
+            getExportParams = function (lname) {
                 return {
-                    ignore:false,
-                    exportType:"png",
+                    exportType: "png",
                     name: lname,
-                    useText: false
-                }
-            }
+                    svgFont: false
+                };
+            };
         }
 						
-		var destPath = destFolder.path + "/" + destFolder.name + "/";
 		        		
 		var n = doc.layers.length;
 		
@@ -37,48 +33,29 @@ var AltLayerExporter = (function () {
 
         var destDoc = app.documents.add(DocumentColorSpace.RGB);
 		
-		for ( j = 0 ; j < n ; j++){
+		for ( j = 0; j < n; j++){
 			
 			var l = doc.layers[j];
 						
 			if (ignoreInvisible && l.visible == false) continue;
+			
 			var isLocked = l.locked;
 			if(isLocked) l.locked = false;
 
 			//ignore empty layers
-			if(l.pageItems.length==0) continue;			
+			if(l.pageItems.length==0) continue;
+			
 			// also ignore items which width==0 (points etc)
 			if(doc.visibleBounds[0] == doc.visibleBounds[2]) continue;	
+                        		
+            var exportParams = getExportParams(l.name);		
+                        
+            if(exportParams == null) continue;
             
-            		
-            var layerOptions = getLayerOptions(l.name);		
-            
-            if(layerOptions.ignore) continue;
-            
-            copyLayer(l, destDoc);
-            
+            copyLayer(l, destDoc);            
             destDoc.artboards[0].artboardRect = destDoc.visibleBounds;
             
-
-//            }
-            
-            var filename = layerOptions.name + "." + layerOptions.exportType;
-            
-            /*
-			var fileName = namingFunc(l.name);
-                        
-            var nameParts = l.name.split(".");
-            var nameEnd = nameParts[nameParts.length-1];
-            if(nameEnd == "png") exportType = ExportType.PNG24;
-            if(nameEnd == "svg") exportType = ExportType.SVG;
-            if(nameEnd == "jpg") exportType = ExportType.JPEG;
-            
-            var useText = false;
-            if(l.name.indexOf("-txt")>-1) useText = true;
-            */
-            
-            
-			exportImage(destDoc, destPath + filename, layerOptions.exportType, layerOptions.useText);
+			exportImage(destDoc, destFolder, exportParams);
 								
             destDoc.activeLayer.pageItems.removeAll();
             
@@ -101,17 +78,21 @@ var AltLayerExporter = (function () {
 
 
 
-	function exportImage(doc, dest, exportType, useText) {
-		
+	function exportImage(doc, destFolder, exportParams) {
+				
+        var dest = destFolder.path + "/" + destFolder.name + "/" + exportParams.name + "." + exportParams.exportType;
+				
         var options;
+        var exportType = exportParams.exportType.toLowerCase();
 		var eType;
-		if(exportType.toLowerCase() == "svg") {
+		
+		if(exportType == "svg") {			
 			eType = ExportType.SVG;
 			options = new ExportOptionsSVG();
-            options.coordinatePrecision = 2; // 3 by default			
-			options.embedRasterImages = true;
+            options.coordinatePrecision = exportParams.precision; // 3 by default			
+			options.embedRasterImages = exportParams.embedImages;
             options.fontType = SVGFontType.OUTLINEFONT;
-            if(useText) {
+            if(exportParams.svgFont) {
                 options.fontType = SVGFontType.SVGFONT;
                 options.fontSubsetting = SVGFontSubsetting.None;
             }
@@ -119,16 +100,19 @@ var AltLayerExporter = (function () {
                 options.includeVariablesAndDatasets = true;
             }
             options.cssProperties = SVGCSSPropertyLocation.STYLEELEMENTS;
-            options.documentEncoding = SVGDocumentEncoding.UTF8;			
-		}
-		else if (exportType.toLowerCase() == "png") {
+            options.documentEncoding = SVGDocumentEncoding.UTF8;
+            		
+		} else if (exportType == "png") {			
 			eType = ExportType.PNG24;
 			options = new ExportOptionsPNG24();
-		}
-		else if (exportType.toLowerCase() == "jpg") {
+			
+		} else if (exportType == "jpg") {			
 			eType = ExportType.JPEG;
 			options = new ExportOptionsJPEG();
-			options.qualitySetting = 90;
+			options.qualitySetting = exportParams.jpgQuality;			
+		} else {
+		  // unsupported exportType
+		  return;
 		}
 	
 		var fileSpec = new File(dest);

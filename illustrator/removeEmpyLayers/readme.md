@@ -2,4 +2,6 @@
 
 Recursively removes empty layers or sublayers.
 
-[Download](https://raw.github.com/davidderaedt/CSscripts/master/illustrator/removeEmpyLayers/removeEmptyLayers.jsx)
+[Download JSX file here](https://raw.github.com/davidderaedt/CSscripts/master/illustrator/removeEmpyLayers/removeEmptyLayers.jsx)
+
+![image](remove.png)

@@ -1,5 +1,9 @@
 
 photoshop/LiveCoding.jsx
+
+photoshop/test-ignore/
+illustrator/test-ignore/
+
 # OS generated files #
 ######################
 .DS_Store

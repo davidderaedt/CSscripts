@@ -45,4 +45,3 @@ function doExport(useSVG) {
 	}
 
 }
-doExport(true);

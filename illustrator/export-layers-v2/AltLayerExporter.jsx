@@ -5,7 +5,6 @@ var AltLayerExporter = (function () {
 
 	/**
 	Exports all layers of a given document to properly sized PNG, JPEG or SVG files
-	The default export type can be overriden by adding the chosen type to the layer name
 	@public
 	@param {Document} doc The document to export
 	@param {Folder} destFolder The destination folder for the image files
@@ -15,49 +14,53 @@ var AltLayerExporter = (function () {
 	*/
 
 	function exportLayers(doc, destFolder, ignoreInvisible, getExportParams) {
-						
-        if (!getExportParams) {
-            getExportParams = function (lname) {
-                return {
-                    exportType: "png",
-                    name: lname,
-                    svgFont: false
-                };
-            };
-        }
-						
-		        		
-		var n = doc.layers.length;
+        
+        var n = doc.layers.length;
 		
-		var j;
+        var j;
 
         var destDoc = app.documents.add(DocumentColorSpace.RGB);
 		
 		for ( j = 0; j < n; j++){
 			
-			var l = doc.layers[j];
-						
-			if (ignoreInvisible && l.visible == false) continue;
-			
-			var isLocked = l.locked;
-			if(isLocked) l.locked = false;
+            var l = doc.layers[j];
 
-			//ignore empty layers
-			if(l.pageItems.length==0) continue;
-			
-			// also ignore items which width==0 (points etc)
-			if(doc.visibleBounds[0] == doc.visibleBounds[2]) continue;	
-                        		
-            var exportParams = getExportParams(l.name);		
-                        
-            if(exportParams == null) continue;
+            if (ignoreInvisible && l.visible == false) continue;
+
+            var isLocked = l.locked;
+            if(isLocked) l.locked = false;
+
+            //ignore empty layers
+            if(l.pageItems.length==0) continue;
+
+            // also ignore items which width==0 (points etc)
+            if(doc.visibleBounds[0] == doc.visibleBounds[2]) continue;	
+
             
-            copyLayer(l, destDoc);            
-            destDoc.artboards[0].artboardRect = destDoc.visibleBounds;
+            var exportParams = getExportParams(l.name);        
             
-			exportImage(destDoc, destFolder, exportParams);
-								
-            destDoc.activeLayer.pageItems.removeAll();
+            // export the layer itself if an eportType was specified
+            if (exportParams && exportParams.exportType){
+                copyLayer(l, destDoc);
+                destDoc.artboards[0].artboardRect = destDoc.visibleBounds;
+                exportImage(destDoc, destFolder, exportParams);
+                destDoc.activeLayer.pageItems.removeAll();                
+            }                
+
+            
+            // parse items
+            for (var i = 0 ; i < l.pageItems.length ; i++){
+                var item = l.pageItems[i];
+                exportParams = getExportParams(item.name);
+                // export item if an eportType was specified
+                if(exportParams && exportParams.exportType){
+                    item.duplicate(destDoc.activeLayer, ElementPlacement.PLACEATEND);
+                    destDoc.artboards[0].artboardRect = destDoc.visibleBounds;
+                    exportImage(destDoc, destFolder, exportParams);
+                    destDoc.activeLayer.pageItems.removeAll();                
+                }
+            }
+            
             
             if(isLocked) l.locked = true;
 								
@@ -68,12 +71,13 @@ var AltLayerExporter = (function () {
 	}
 	
 	
-	function copyLayer(l, destDoc) {
+	function copyLayer( l, destDoc) {
         
         var n = l.pageItems.length;
         for (var i = 0; i < n; i++){
             l.pageItems[i].duplicate(destDoc.activeLayer, ElementPlacement.PLACEATEND);
         }
+        
 	}
 
 
@@ -105,13 +109,15 @@ var AltLayerExporter = (function () {
 		} else if (exportType == "png") {			
 			eType = ExportType.PNG24;
 			options = new ExportOptionsPNG24();
+            options.artBoardClipping=true;
 			
 		} else if (exportType == "jpg") {			
 			eType = ExportType.JPEG;
 			options = new ExportOptionsJPEG();
-			options.qualitySetting = exportParams.jpgQuality;			
+			options.qualitySetting = exportParams.jpgQuality;		
+            options.artBoardClipping=true;
 		} else {
-		  // unsupported exportType
+		  // unsupported exportTypes are ignored
 		  return;
 		}
 	
@@ -127,7 +133,3 @@ var AltLayerExporter = (function () {
 
 }());
 
-/*
-var destFolder = Folder.selectDialog ("Select Destination Folder");
-AltLayerExporter.exportLayers(app.activeDocument, destFolder, true);
-*/

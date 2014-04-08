@@ -1,1 +1,74 @@
-﻿#include AltLayerExporter.jsx#include DataExtractor.jsx#include ../../common/Utils.jsx#include ../../common/json2.js$.exportLayersAndData = function (defaultParams, ignoreHidden, namingFunc, doc, destFolder) {        if(!doc) doc = app.activeDocument;    if(!destFolder) destFolder = Folder.selectDialog ("Select Destination Folder");    if(!destFolder) return;        var reg = new RegExp("\\s", "g");            if(!namingFunc) namingFunc = function(lname) {return lname.replace(reg, "-");};            function readLayerParams(lName) {                //if(lName.charAt(0) == "!") return null;                var obj = {            name:lName,            exportType: defaultParams.exportType,            svgFont: defaultParams.svgFont,            jpgQuality: defaultParams.jpgQuality,            precision: defaultParams.precision,            embedImages: defaultParams.embedImages        };                        var nameParts = lName.split(".");                if(nameParts.length > 1) obj.exportType = nameParts[1];                obj.name = namingFunc(nameParts[0]);                /*TODO: option parsing*/        /*        obj.svgFont = false;//TODO        obj.jpgQuality = 100;//TODO        obj.precision = 2;//TODO        obj.embedImages = true;//TODO        */                return obj;    }            AltLayerExporter.exportLayers(doc, destFolder, ignoreHidden, readLayerParams);    var data = DataExtractor.getLayersCoords(doc, readLayerParams);         var text = JSON.stringify(data, null, '\t');    var filepath = destFolder.absoluteURI + "/data.json";    saveTextFile(text, filepath);            }/*//Usagevar globalParams = {    exportType: "svg",    precision: 2,        svgFont: false,    jpgQuality: 100,    embedImages: true};$.exportLayersAndData(globalParams, true);*/
+#include AltLayerExporter.jsx
+#include DataExtractor.jsx
+#include ../../common/Utils.jsx
+#include ../../common/json2.js
+#include "../../edgeanimate/EdgeAnimateImporter.jsx"
+#include HTMLExporter.jsx
+
+$.exportLayersAndData = function (imageParams, outputParams, destFolder, ignoreHidden, doc) {
+    
+    if(!doc) doc = app.activeDocument;
+    if(!ignoreHidden) ignoreHidden=true;
+    
+    if(!destFolder) destFolder = Folder.selectDialog ("Select Destination Folder");
+    if(!destFolder) return;
+    
+    if(!outputParams){
+        outputParams = {
+            createJSON:false,
+            toHTML:false,
+            sepCss:false,
+            toEdgeAnimate:false
+        }
+    }
+    
+    //safe naming    
+    var reg = new RegExp("\\s", "g");
+    var namingFunc = function(lname) {
+        return lname.replace(reg, "-");
+    };        
+    
+    // name-to-file-type logic
+    function readLayerParams(lName) {
+                
+        var obj = {
+            name:lName,
+            exportType: null,
+            svgFont: imageParams.svgFont,
+            jpgQuality: imageParams.jpgQuality,
+            precision: imageParams.precision,
+            embedImages: imageParams.embedImages
+        };          
+       
+        var nameParts = lName.split(".");
+        
+        if(nameParts.length > 1) obj.exportType = nameParts[1];
+        
+        obj.name = namingFunc(nameParts[0]);
+        
+        return obj;
+    }
+    
+      
+    AltLayerExporter.exportLayers(app.activeDocument, destFolder, ignoreHidden, readLayerParams);
+
+    var data = DataExtractor.getLayersCoords(doc, readLayerParams);
+    
+    if(outputParams.createJSON){
+        var text = JSON.stringify(data, null, '\t');
+        var filepath = destFolder.absoluteURI + "/data.json";
+        saveTextFile(text, filepath);    
+    }
+    
+    if(outputParams.toHTML){
+        var htmlFolder = destFolder.parent;
+        HTMLExporter.generateFrom(data, htmlFolder, destFolder.name, outputParams.sepCss);
+    }
+    
+    if(outputParams.toEdgeAnimate){
+        var anFile = File.openDialog ("Select the .an file of the destination Edge Animate project.");	
+        if(anFile) EdgeAnimateImporter.doImport(anFile, data.layers);
+    }
+    
+    return data;
+}

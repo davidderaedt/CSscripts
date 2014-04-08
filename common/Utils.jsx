@@ -1,12 +1,21 @@
-﻿// (c) Copyright 2012 Adobe Systems, Inc. All rights reserved.
+// (c) Copyright 2012 Adobe Systems, Inc. All rights reserved.
 // Written by David Deraedt
 
-function log(pText){
+function clog(pText){
 	$.writeln(pText);
 }
 
 
-
+var _logtxt="";
+function flog(pText){
+	_logtxt+=pText+"\n";
+}
+function makeLog(pAppName){
+    var supportDir = new Folder(Folder.userData.absoluteURI+"/"+pAppName);
+    if(!supportDir.exists) supportDir.create();
+    var _logFile = new File(supportDir.absoluteURI+"/log.txt");
+    saveTextFile(_logtxt, _logFile);   
+}
 
 function inspectObj(obj){
 	var txt = "";

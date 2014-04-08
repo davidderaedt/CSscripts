@@ -1,11 +1,19 @@
 #include ExportLayersAndData.jsx
 
-var globalParams = {
-    exportType: "svg",
-    precision: 2,    
+var imageParams = {
+    precision: 1,
     svgFont: false,
     jpgQuality: 100,
     embedImages: true
 };
 
-$.exportLayersAndData(globalParams, true);
+var outputParams = {
+    createJSON:true,
+    toHTML:true,
+    sepCss:true,
+    toEdgeAnimate:false
+};
+
+var data = $.exportLayersAndData(imageParams, outputParams);
+
+//makeLog("IllustratorLayerExporter");

@@ -68,7 +68,7 @@ var DataExtractor = (function () {
     }
 
 
-    function getLayersCoords(doc, getLayerParams) {
+    function getLayersCoords(doc, getLayerParams, ignoreHidden) {
         
         var i = doc.artboards.getActiveArtboardIndex();
         var artb = doc.artboards[i];
@@ -85,6 +85,9 @@ var DataExtractor = (function () {
         for (var i = 0 ; i < count ; i++){
             
             var l = doc.layers[i];
+            
+            if(ignoreHidden && l.visible ==false) continue;
+            
             var params = getLayerParams(l.name);
             
             if(params == null) continue;
@@ -107,7 +110,9 @@ var DataExtractor = (function () {
             d.items=[];
             for ( var j = 0 ; j < l.pageItems.length ; j++){
                 
-                var item = l.pageItems[j];                
+                var item = l.pageItems[j];
+                
+                if(ignoreHidden && item.hidden) continue;
                 
                 // image file (aka normal) items
                 if(item.name.indexOf(".")>0){
@@ -120,7 +125,8 @@ var DataExtractor = (function () {
                     it.layername = item.name;
                     it.name = itemParams.name;
                     it.type = itemParams.exportType;
-                    it.filename = itemParams.name + "." + itemParams.exportType;                
+                    it.filename = itemParams.name + "." + itemParams.exportType;
+                    it.visible = ! item.hidden;
                     d.items.push(it);
                                         
                 }

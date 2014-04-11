@@ -38,10 +38,10 @@ var HTMLExporter = (function () {
         var mainDiv = '<div id="' + compName + '">' + le + txtData.html + le + "</div>" + le;
         
         if(separateCSS){
-            htmlTxt="<html>"+le+"<head>"+le+"<link href='styles.css' rel='stylesheet' >"+le+"</head>"+le+"<body>"+le+mainDiv+le+"</body>"+le+"</html>";
+            htmlTxt="<!DOCTYPE>"+le+"<html>"+le+"<head>"+le+"<link href='styles.css' rel='stylesheet' >"+le+"</head>"+le+"<body>"+le+mainDiv+le+"</body>"+le+"</html>";
         }
         else {
-            htmlTxt="<html>"+le+"<body>"+le+"<style>"+le+txtData.css+le+"</style>"+le+mainDiv+le+"</body>"+le+"</html>";
+            htmlTxt="<!DOCTYPE>"+le+"<html>"+le+"<body>"+le+"<style>"+le+txtData.css+le+"</style>"+le+mainDiv+le+"</body>"+le+"</html>";
         }
         
         return {
@@ -61,6 +61,7 @@ var HTMLExporter = (function () {
             var item = itemsData[i];
             var isDiv = (item.type=="div");
             var isText = (item.type =="txt");
+            if(!item.visible) continue;
             
             if (isDiv) {
                 htmltxt += stab + '\t<div id="' + item.name + '">' ;

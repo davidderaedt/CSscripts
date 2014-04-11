@@ -37,7 +37,8 @@ $.exportLayersAndData = function (imageParams, outputParams, destFolder, ignoreH
             svgFont: imageParams.svgFont,
             jpgQuality: imageParams.jpgQuality,
             precision: imageParams.precision,
-            embedImages: imageParams.embedImages
+            embedImages: imageParams.embedImages,
+            svgCssPropLoc: imageParams.svgCssPropLoc
         };          
        
         var nameParts = lName.split(".");
@@ -52,7 +53,7 @@ $.exportLayersAndData = function (imageParams, outputParams, destFolder, ignoreH
       
     AltLayerExporter.exportLayers(app.activeDocument, destFolder, ignoreHidden, readLayerParams);
 
-    var data = DataExtractor.getLayersCoords(doc, readLayerParams);
+    var data = DataExtractor.getLayersCoords(doc, readLayerParams, ignoreHidden);
     
     if(outputParams.createJSON){
         var text = JSON.stringify(data, null, '\t');

@@ -51,6 +51,8 @@ var AltLayerExporter = (function () {
             // parse items
             for (var i = 0 ; i < l.pageItems.length ; i++){
                 var item = l.pageItems[i];
+                //flog("Processing " + item.name + " data");
+                if (ignoreInvisible && item.hidden) continue;
                 exportParams = getExportParams(item.name);
                 // export item if an eportType was specified
                 if(exportParams && exportParams.exportType){
@@ -103,7 +105,10 @@ var AltLayerExporter = (function () {
             if(doc.variables.length>0) {
                 options.includeVariablesAndDatasets = true;
             }
-            options.cssProperties = SVGCSSPropertyLocation.STYLEELEMENTS;
+            var cssPropLoc = SVGCSSPropertyLocation.PRESENTATIONATTRIBUTES;
+            if(exportParams.svgCssPropLoc == 1 ) cssPropLoc =SVGCSSPropertyLocation.STYLEELEMENTS;
+            else if (exportParams.svgCssPropLoc == 2 ) cssPropLoc =SVGCSSPropertyLocation.STYLEATTRIBUTES;
+            options.cssProperties = cssPropLoc;
             options.documentEncoding = SVGDocumentEncoding.UTF8;
             		
 		} else if (exportType == "png") {			

@@ -130,7 +130,7 @@ function saveTextFile(pText, filepath) {
 	
     fileOut = new File(filepath);
     fileOut.lineFeed = fileLineFeed;
-    fileOut.open("w", "TEXT", "????");
+    fileOut.open("w", "TEXT", "?????");
     fileOut.write(pText);
     fileOut.close();
 }
